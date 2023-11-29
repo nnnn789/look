@@ -1,7 +1,5 @@
-#include <deprecated.h>
 #include <MFRC522.h>
 #include <MFRC522Extended.h>
-#include <require_cpp11.h>
 #include <Servo.h>
 
 #include <SPI.h>
@@ -29,7 +27,9 @@ void setup() {
 
 }
 
+int isOpen = 1;
 void loop() {
+
   // check if a card is near the reader
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
     return;
@@ -40,13 +40,20 @@ void loop() {
   }
   // check if the card has access
   if(compareUID(mfrc522.uid.uidByte, knownCard, mfrc522.uid.size)) {
-    Serial.println("Access granted!");
-    myservo.write(0);
-    delay(1000);
-    myservo.write(90);
-    delay(1000);
-    myservo.write(180);
-    delay(1000);
+    if(isOpen==1){
+      //close the lock
+      myservo.write(0);
+      Serial.println("Opened lock!!");
+      delay(500);
+      isOpen=0;
+    }
+    else {
+      //open the lock
+      Serial.println("Closed lock!!");
+      myservo.write(90);
+      delay(500);
+      isOpen=1;
+    }
   } else {
     Serial.println("Access Denied!!");
   }
